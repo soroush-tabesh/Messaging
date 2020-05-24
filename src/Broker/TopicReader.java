@@ -12,7 +12,7 @@ public class TopicReader {
     private final String groupName;
     private final RandomAccessFile topicFile;
     private final Logger logger = Logger.getInstance();
-    private final Lock getLock = new ReentrantLock(true); //prevent thread starvation
+    private final Lock getLock = new ReentrantLock(false); //prevent thread starvation
 
     TopicReader(Topic topic, String groupName) {
         RandomAccessFile topicFile1;
