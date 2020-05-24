@@ -16,7 +16,7 @@ public class TopicWriter {
     private final RandomAccessFile buffer;
     private final Topic topic;
     private final Logger logger = Logger.getInstance();
-    private final Lock putLock = new ReentrantLock(false); //prevent thread starvation
+    private final Lock putLock = new ReentrantLock(true); //prevent thread starvation
 
     TopicWriter(Topic topic) {
         RandomAccessFile buffer1;
