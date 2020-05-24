@@ -14,7 +14,7 @@ public class Logger {
     private Logger() {
         RandomAccessFile file1;
         try {
-            file1 = new RandomAccessFile("log.txt", "rw");
+            file1 = new RandomAccessFile("./records.log", "rw");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             file1 = null;
@@ -35,8 +35,7 @@ public class Logger {
             file.seek(file.length());
             file.write(String.format("%s : %-8s : %s\n", new Date(), severity, message)
                     .getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 

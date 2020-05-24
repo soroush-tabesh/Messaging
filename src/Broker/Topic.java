@@ -1,22 +1,33 @@
 package Broker;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Topic {
-    private String name;
+    private final String name;
 
-    private File topicFile;
-    private TopicWriter topicWriter;
-    private Map<String, TopicReader> topicReaders;
+    private final File topicFile;
+    private final TopicWriter topicWriter;
+    private final Map<String, TopicReader> topicReaders = Collections.synchronizedMap(new HashMap<>()); // thread-safe
+    private final Object topicReaderLock = new Object();
 
     Topic(String name) {
         this.name = name;
-
-        topicFile = new File(name + ".dat");
+        topicFile = new File("./brokerTemp/" + name + ".dat");
+        try {
+            if (topicFile.delete())
+                topicFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         topicWriter = new TopicWriter(this);
-        topicReaders = new HashMap<>();
+    }
+
+    public String getName() {
+        return name;
     }
 
     public File getTopicFile() {
@@ -33,10 +44,11 @@ public class Topic {
      * @return the value of the first remained item.
      */
     public int get(String groupName, String consumerName) {
-        if (!topicReaders.containsKey(groupName)) {
-            addGroup(groupName);
+        synchronized (topicReaderLock) { // prevent slipped-condition
+            if (!topicReaders.containsKey(groupName)) {
+                addGroup(groupName);
+            }
         }
-
         return topicReaders.get(groupName).get(consumerName);
     }
 

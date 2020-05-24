@@ -21,8 +21,7 @@ public class Consumer extends Thread {
         while (true) {
             try {
                 consumerGroup.performAction(this, get());
-            } catch (NoSuchTopicException e) {
-//                e.printStackTrace();
+            } catch (NoSuchTopicException ignored) {
             }
         }
     }

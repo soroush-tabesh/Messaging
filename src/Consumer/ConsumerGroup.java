@@ -46,13 +46,12 @@ public class ConsumerGroup extends Thread {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-        //fixme
-        printWriter.close();
+//        printWriter.close(); //debug
     }
 
-    public void performAction(Consumer consumer, int value) {
-        printWriter.println("Consumer with name " + consumer.getConsumerName() + " read the value " + value);
+    public synchronized void performAction(Consumer consumer, int value) {
+//        printWriter.println("Consumer with name " + consumer.getConsumerName() + " read the value " + value);
+        printWriter.println(value);
         printWriter.flush();
     }
 

@@ -17,7 +17,7 @@ public class Program {
     }
 
     private File getProducerGroupDirectory() {
-        File producerDirectory = new File("data/");
+        File producerDirectory = new File("./data/");
         if (args.length > 0) {
             producerDirectory = new File(args[0]);
         }
@@ -42,6 +42,7 @@ public class Program {
         while (producerGroup.isAlive() || consumerGroup.isAlive()) {
             try {
                 producerGroup.join();
+                consumerGroup.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

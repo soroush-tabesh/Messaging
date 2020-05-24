@@ -1,24 +1,47 @@
 package Broker;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TopicWriter {
+
     private final Map<String, Transaction> transactions;
-    RandomAccessFile buffer;
-    private Topic topic;
+    private final RandomAccessFile buffer;
+    private final Topic topic;
+    private final Logger logger = Logger.getInstance();
+    private final Lock putLock = new ReentrantLock(true); //prevent thread starvation
 
     TopicWriter(Topic topic) {
+        RandomAccessFile buffer1;
         this.topic = topic;
         transactions = new HashMap<>();
+        try {
+            buffer1 = new RandomAccessFile(topic.getTopicFile(), "rws");
+        } catch (FileNotFoundException e) {
+            buffer1 = null;
+            logger.log("Error accessing topic file '" + topic.getTopicFile() + "'"
+                    , Logger.Severity.ERROR);
+        }
+        buffer = buffer1;
     }
 
     public void put(String producerName, int value) {
-        if (value <= 0) {
-            handleTransactionOperation(producerName, value);
-        } else {
-            handleInsertOperation(producerName, value);
+        putLock.lock();
+        try {
+            if (value <= 0) {
+                handleTransactionOperation(producerName, value);
+            } else {
+                handleInsertOperation(producerName, value);
+            }
+        } finally {
+            putLock.unlock();
         }
     }
 
@@ -54,9 +77,9 @@ public class TopicWriter {
      */
     private void startTransaction(String producerName) {
         if (transactions.containsKey(producerName)) {
-            //To Do - Log the problem in finalizing previous transaction.
+            logger.log("Request for duplicate transaction. Committing underlying transaction and starting" +
+                    " a new one for'" + producerName + "'", Logger.Severity.WARNING);
             commitTransaction(producerName);
-            transactions.remove(producerName);
         }
         addTransaction(producerName);
     }
@@ -69,8 +92,9 @@ public class TopicWriter {
     private void commitTransaction(String producerName) {
         if (transactions.containsKey(producerName)) {
             transactions.get(producerName).commit();
+            transactions.remove(producerName);
         } else {
-            //To Do - Log the problem in committing a non-existing transaction.
+            logger.log("No active transaction for '" + producerName + "' to commit.", Logger.Severity.ERROR);
         }
     }
 
@@ -83,11 +107,40 @@ public class TopicWriter {
         if (transactions.containsKey(producerName)) {
             transactions.remove(producerName);
         } else {
-            //To Do - Log the problem in canceling a non-existing transaction.
+            logger.log("No active transaction for '" + producerName + "' to close.", Logger.Severity.ERROR);
         }
     }
 
-    public void writeValue(int value) {
-        //To Do - Put the given value at the end of the topicFile
+    private void writeValue(int value) {
+        try {
+            buffer.write(String.format("%d\n", value).getBytes());
+        } catch (IOException e) {
+            logger.log("Problem in writing to topic '" + topic.getName() + "'.", Logger.Severity.ERROR);
+//            e.printStackTrace();
+        }
+    }
+
+    private static class Transaction {
+        private final TopicWriter topicWriter;
+        private final Queue<Integer> values;
+        private final String producerName;
+
+        Transaction(TopicWriter topicWriter, String producerName) {
+            this.topicWriter = topicWriter;
+            this.producerName = producerName;
+            values = new LinkedList<>();
+        }
+
+        void put(int value) {
+            values.add(value);
+        }
+
+        void commit() {
+            topicWriter.writeValue(0);
+            while (!values.isEmpty()) {
+                topicWriter.writeValue(values.remove());
+            }
+            topicWriter.writeValue(-1);
+        }
     }
 }
