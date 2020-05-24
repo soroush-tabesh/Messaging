@@ -24,6 +24,7 @@ public class Producer extends Thread {
             Scanner scanner = new Scanner(producerFile);
             while (scanner.hasNext()) {
                 put(scanner.nextInt());
+//                Thread.sleep(100);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -16,6 +16,7 @@ public class Topic {
 
     Topic(String name) {
         this.name = name;
+        new File("./brokerTemp").mkdir();
         topicFile = new File("./brokerTemp/" + name + ".dat");
         try {
             if (topicFile.delete())
