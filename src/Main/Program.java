@@ -8,17 +8,17 @@ import java.io.File;
 
 public class Program {
 
-    private String[] args;
-    private MessageBroker messageBroker;
+    private final String[] args;
+    private final MessageBroker messageBroker;
 
-    Program(String args[]) {
+    Program(String[] args) {
         this.args = args;
         messageBroker = new MessageBroker();
     }
 
     private File getProducerGroupDirectory() {
         File producerDirectory = new File("data/");
-        if(args.length>0) {
+        if (args.length > 0) {
             producerDirectory = new File(args[0]);
         }
 
@@ -29,7 +29,7 @@ public class Program {
         File producerGroupDirectory = getProducerGroupDirectory();
         String topicName = producerGroupDirectory.getName();
 
-        File consumerGroupFile = new File(topicName+".txt");
+        File consumerGroupFile = new File(topicName + ".txt");
         String consumerGroupName = topicName + "Readers";
         int numberOfConsumers = 10;
 
@@ -39,7 +39,7 @@ public class Program {
         producerGroup.start();
         consumerGroup.start();
 
-        while(producerGroup.isAlive() || consumerGroup.isAlive()) {
+        while (producerGroup.isAlive() || consumerGroup.isAlive()) {
             try {
                 producerGroup.join();
             } catch (InterruptedException e) {

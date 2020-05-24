@@ -6,11 +6,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class Producer extends Thread{
-    private MessageBroker messageBroker;
-    private String topicName;
-    private String producerName;
-    private File producerFile;
+public class Producer extends Thread {
+    private final MessageBroker messageBroker;
+    private final String topicName;
+    private final String producerName;
+    private final File producerFile;
 
     Producer(MessageBroker messageBroker, String topicName, String producerName, File producerFile) {
         this.messageBroker = messageBroker;
@@ -22,7 +22,7 @@ public class Producer extends Thread{
     public void run() {
         try {
             Scanner scanner = new Scanner(producerFile);
-            while(scanner.hasNext()) {
+            while (scanner.hasNext()) {
                 put(scanner.nextInt());
             }
         } catch (FileNotFoundException e) {

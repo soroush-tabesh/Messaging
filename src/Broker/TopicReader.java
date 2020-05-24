@@ -4,14 +4,13 @@ import java.io.RandomAccessFile;
 
 public class TopicReader {
 
-    RandomAccessFile topicFile;
-
-    private Topic topic;
-    private String groupName;
+    private final Topic topic;
+    private final String groupName;
+    private /*final*/ RandomAccessFile topicFile;
 
     TopicReader(Topic topic, String groupName) {
         this.topic = topic;
-        this.groupName=groupName;
+        this.groupName = groupName;
         //To Do - Generate topicFile
     }
 

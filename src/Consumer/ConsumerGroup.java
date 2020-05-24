@@ -6,15 +6,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ConsumerGroup extends Thread{
-    private ArrayList<Consumer> consumers;
-    private MessageBroker messageBroker;
-    private String topicName;
-    private String groupName;
-    private int numberOfConsumers;
+public class ConsumerGroup extends Thread {
+    private final List<Consumer> consumers;
+    private final MessageBroker messageBroker;
+    private final String topicName;
+    private final String groupName;
+    private final int numberOfConsumers;
 
-    private File consumerGroupFile;
+    private final File consumerGroupFile;
     private PrintWriter printWriter;
 
     public ConsumerGroup(MessageBroker messageBroker, String topicName, String groupName, File consumerGroupFile, int numberOfConsumers) {
@@ -27,7 +28,7 @@ public class ConsumerGroup extends Thread{
     }
 
     private void initialize() throws FileNotFoundException {
-        for(int i=0;i<numberOfConsumers;i++) {
+        for (int i = 0; i < numberOfConsumers; i++) {
             String consumerName = groupName + "_" + i;
             consumers.add(new Consumer(this, consumerName));
         }
@@ -39,13 +40,14 @@ public class ConsumerGroup extends Thread{
         try {
             initialize();
 
-            for(Consumer consumer: consumers) {
+            for (Consumer consumer : consumers) {
                 consumer.start();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
+        //fixme
         printWriter.close();
     }
 
@@ -57,10 +59,13 @@ public class ConsumerGroup extends Thread{
     public String getGroupName() {
         return groupName;
     }
+
     public String getTopicName() {
         return topicName;
     }
 
-    public MessageBroker getMessageBroker() { return messageBroker;    }
+    public MessageBroker getMessageBroker() {
+        return messageBroker;
+    }
 }
 

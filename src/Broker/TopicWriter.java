@@ -2,23 +2,22 @@ package Broker;
 
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TopicWriter {
+    private final Map<String, Transaction> transactions;
     RandomAccessFile buffer;
-
     private Topic topic;
-    private HashMap<String, Transaction> transactions;
 
     TopicWriter(Topic topic) {
-        this.topic=topic;
+        this.topic = topic;
         transactions = new HashMap<>();
     }
 
     public void put(String producerName, int value) {
-        if(value <= 0) {
+        if (value <= 0) {
             handleTransactionOperation(producerName, value);
-        }
-        else {
+        } else {
             handleInsertOperation(producerName, value);
         }
     }
@@ -37,10 +36,9 @@ public class TopicWriter {
     }
 
     private void handleInsertOperation(String producerName, int value) {
-        if(transactions.containsKey(producerName)) {
+        if (transactions.containsKey(producerName)) {
             transactions.get(producerName).put(value);
-        }
-        else {
+        } else {
             writeValue(value);
         }
     }
@@ -51,10 +49,11 @@ public class TopicWriter {
 
     /**
      * This method is used to start a transaction for putting a transaction of values inside the buffer.
+     *
      * @return Nothing.
      */
     private void startTransaction(String producerName) {
-        if(transactions.containsKey(producerName)) {
+        if (transactions.containsKey(producerName)) {
             //To Do - Log the problem in finalizing previous transaction.
             commitTransaction(producerName);
             transactions.remove(producerName);
@@ -64,26 +63,26 @@ public class TopicWriter {
 
     /**
      * This method is used to end the transaction for putting a its values inside the file.
+     *
      * @return Nothing.
      */
     private void commitTransaction(String producerName) {
-        if(transactions.containsKey(producerName)) {
+        if (transactions.containsKey(producerName)) {
             transactions.get(producerName).commit();
-        }
-        else {
+        } else {
             //To Do - Log the problem in committing a non-existing transaction.
         }
     }
 
     /**
      * This method is used to cancel a transaction.
+     *
      * @return Nothing.
      */
     private void cancelTransaction(String producerName) {
-        if(transactions.containsKey(producerName)) {
+        if (transactions.containsKey(producerName)) {
             transactions.remove(producerName);
-        }
-        else {
+        } else {
             //To Do - Log the problem in canceling a non-existing transaction.
         }
     }

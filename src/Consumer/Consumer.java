@@ -5,8 +5,8 @@ import Broker.NoSuchTopicException;
 
 public class Consumer extends Thread {
 
-    private ConsumerGroup consumerGroup;
-    private String consumerName;
+    private final ConsumerGroup consumerGroup;
+    private final String consumerName;
 
     Consumer(ConsumerGroup consumerGroup, String consumerName) {
         this.consumerGroup = consumerGroup;
@@ -18,11 +18,11 @@ public class Consumer extends Thread {
     }
 
     public void run() {
-        while(true) {
+        while (true) {
             try {
                 consumerGroup.performAction(this, get());
             } catch (NoSuchTopicException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
     }
@@ -30,8 +30,12 @@ public class Consumer extends Thread {
     public MessageBroker getMessageBroker() {
         return consumerGroup.getMessageBroker();
     }
+
     public String getConsumerName() {
         return consumerName;
     }
-    public String getTopicName() { return consumerGroup.getTopicName();    }
+
+    public String getTopicName() {
+        return consumerGroup.getTopicName();
+    }
 }

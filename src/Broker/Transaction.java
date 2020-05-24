@@ -5,9 +5,9 @@ import java.util.Queue;
 
 public class Transaction {
 
-    private TopicWriter topicWriter;
+    private final TopicWriter topicWriter;
+    private final Queue<Integer> values;
     private String producerName;
-    private Queue<Integer> values;
 
     Transaction(TopicWriter topicWriter, String producerName) {
         this.topicWriter = topicWriter;
@@ -21,7 +21,7 @@ public class Transaction {
 
     void commit() {
         topicWriter.writeValue(0);
-        while(!values.isEmpty()) {
+        while (!values.isEmpty()) {
             topicWriter.writeValue(values.remove());
         }
         topicWriter.writeValue(-1);
